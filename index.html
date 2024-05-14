@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Time Difference Calculator</title>
+    <title>Time Difference and Total Labor Hours Calculator</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -18,11 +18,17 @@
         }
 
         .container {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .calculation-box {
             background-color: #fff;
             border-radius: 5px;
             padding: 20px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
             text-align: center;
+            width: 45%;
         }
 
         label {
@@ -30,7 +36,8 @@
             margin-bottom: 10px;
         }
 
-        input[type="time"] {
+        input[type="time"],
+        input[type="number"] {
             padding: 8px;
             width: 200px;
             border-radius: 5px;
@@ -55,22 +62,51 @@
             margin-top: 20px;
             font-size: 18px;
         }
+
+        .result-box {
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            padding: 10px;
+            margin-top: 20px;
+            text-align: left;
+        }
     </style>
 </head>
 
 <body>
     <div class="container">
-        <h2>Time Difference Calculator</h2>
-        <form id="timeForm">
-            <label for="startTime">Start Time:</label>
-            <input type="time" id="startTime" required>
-            <br>
-            <label for="endTime">End Time:</label>
-            <input type="time" id="endTime" required>
-            <br>
-            <button type="button" onclick="calculateTimeDifference()">Calculate</button>
-        </form>
-        <div class="result" id="result"></div>
+        <div class="calculation-box">
+            <h3>Time Difference Calculator</h3>
+            <form id="timeForm">
+                <label for="startTime">Start Time:</label>
+                <input type="time" id="startTime" required>
+                <br>
+                <label for="endTime">End Time:</label>
+                <input type="time" id="endTime" required>
+                <br>
+                <button type="button" onclick="calculateTimeDifference()">Calculate</button>
+            </form>
+            <div class="result" id="result"></div>
+        </div>
+
+        <div style="width: 5%;"></div> <!-- Spacer -->
+
+        <div class="calculation-box">
+            <h3>Total Labor Hours Calculator</h3>
+            <form id="tlhForm">
+                <label for="workers">Number of Workers:</label>
+                <input type="number" id="workers" min="1" required>
+                <br>
+                <label for="packages">Volume of Packages:</label>
+                <input type="number" id="packages" min="1" required>
+                <br>
+                <label for="totalTime">Total Time Available:</label>
+                <input type="number" id="totalTime" min="0" step="0.01" required>
+                <br>
+                <button type="button" onclick="calculateTLH()">Calculate</button>
+            </form>
+            <div class="result-box" id="tlhResult"></div>
+        </div>
     </div>
 
     <script>
@@ -97,6 +133,23 @@
 
             resultElement.textContent = "Time difference: " + decimalTime + " hours";
         }
+
+        function calculateTLH() {
+            var workers = parseInt(document.getElementById("workers").value);
+            var packages = parseInt(document.getElementById("packages").value);
+            var totalTime = parseFloat(document.getElementById("totalTime").value);
+            var tlhResultElement = document.getElementById("tlhResult");
+
+            // Calculate total labor hours
+            var totalLaborHours = (packages / workers).toFixed(2);
+
+            // Calculate TLH percentage
+            var tlhPercentage = ((totalLaborHours / totalTime)).toFixed(2);
+
+            tlhResultElement.innerHTML = "Percentage of Total Labor Hours: " + tlhPercentage + "%";
+        }
+
+
     </script>
 </body>
 
