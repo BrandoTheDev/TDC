@@ -37,6 +37,13 @@
             /* Set a maximum width for the box */
         }
 
+        .time-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
         label {
             display: block;
             margin-bottom: 10px;
@@ -45,11 +52,12 @@
         input[type="time"],
         input[type="number"] {
             padding: 8px;
-            width: 200px;
+            width: 100px;
             border-radius: 5px;
             border: 1px solid #ccc;
         }
 
+        .add-remove-button,
         button {
             padding: 10px 20px;
             background-color: #007bff;
@@ -58,8 +66,10 @@
             border-radius: 5px;
             cursor: pointer;
             transition: background-color 0.3s;
+            margin-top: 10px;
         }
 
+        .add-remove-button:hover,
         button:hover {
             background-color: #0056b3;
         }
@@ -107,23 +117,20 @@
 <body>
     <div class="container">
         <div class="calculation-box">
-            <h3>Time Difference Calculator</h3>
-            <form id="timeForm">
-                <label for="startTime">Start Time:</label>
-                <input type="time" id="startTime" required>
-                <br>
-                <label for="endTime">End Time:</label>
-                <input type="time" id="endTime" required>
-                <br>
-                <button type="button" onclick="calculateTimeDifference()">Calculate</button>
-            </form>
+            <h3>Time on task</h3>
+            <div id="timeContainer">
+                <!-- Start Time and End Time containers will be dynamically added here -->
+            </div>
+            <button class="add-remove-button" onclick="addWorker()">Add Worker</button>
+            <button class="add-remove-button" onclick="removeWorker()">Remove Worker</button>
+            <button onclick="calculateTimeDifference()">Calculate</button>
             <div class="result" id="result"></div>
         </div>
 
         <div style="width: 5%;"></div> <!-- Spacer -->
 
         <div class="calculation-box">
-            <h3>Total Labor Hours Calculator</h3>
+            <h3>Total Labor Hours</h3>
             <form id="tlhForm">
                 <label for="workers">Number of Workers:</label>
                 <input type="number" id="workers" min="1" required>
@@ -145,28 +152,62 @@
     </footer>
 
     <script>
+        let workerCount = 1;
+
+        function addWorker() {
+            workerCount++;
+            const timeContainer = document.getElementById('timeContainer');
+            const newTimeContainer = document.createElement('div');
+            newTimeContainer.classList.add('time-container');
+            newTimeContainer.innerHTML = `
+                <label for="startTime${workerCount}">Start Time:</label>
+                <input type="time" id="startTime${workerCount}" required>
+                <label for="endTime${workerCount}">End Time:</label>
+                <input type="time" id="endTime${workerCount}" required>
+            `;
+            timeContainer.appendChild(newTimeContainer);
+        }
+
+        function removeWorker() {
+            if (workerCount > 1) {
+                const timeContainer = document.getElementById('timeContainer');
+                timeContainer.removeChild(timeContainer.lastElementChild);
+                workerCount--;
+            }
+        }
+
         function calculateTimeDifference() {
-            var startTime = document.getElementById("startTime").value;
-            var endTime = document.getElementById("endTime").value;
             var resultElement = document.getElementById("result");
+            var earliestStartTime = Infinity; // Initialize with a very large value
+            var latestEndTime = -Infinity;    // Initialize with a very small value
 
-            // Convert start time and end time to minutes
-            var startSplit = startTime.split(':');
-            var endSplit = endTime.split(':');
-            var startMinutes = parseInt(startSplit[0]) * 60 + parseInt(startSplit[1]);
-            var endMinutes = parseInt(endSplit[0]) * 60 + parseInt(endSplit[1]);
+            for (let i = 1; i <= workerCount; i++) {
+                var startTime = document.getElementById("startTime" + i);
+                var endTime = document.getElementById("endTime" + i);
 
-            // Calculate the difference in minutes
-            var timeDifference = endMinutes - startMinutes;
+                // Check if both start and end time inputs exist
+                if (startTime && endTime) {
+                    var startMinutes = convertToMinutes(startTime.value);
+                    var endMinutes = convertToMinutes(endTime.value);
 
-            // Convert the difference to hours and minutes
-            var hours = Math.floor(timeDifference / 60);
-            var minutes = timeDifference % 60;
+                    earliestStartTime = Math.min(earliestStartTime, startMinutes);
+                    latestEndTime = Math.max(latestEndTime, endMinutes);
+                }
+            }
 
-            // Convert the result to decimal format with two decimal places
+            var totalMinutes = latestEndTime - earliestStartTime;
+
+            var hours = Math.floor(totalMinutes / 60);
+            var minutes = totalMinutes % 60;
             var decimalTime = (hours + minutes / 60).toFixed(2);
 
-            resultElement.textContent = "Time difference: " + decimalTime + " hours";
+            resultElement.textContent = "Total Time difference: " + decimalTime + " hours";
+        }
+
+        // Helper function to convert time string to minutes
+        function convertToMinutes(timeString) {
+            var timeSplit = timeString.split(':');
+            return parseInt(timeSplit[0]) * 60 + parseInt(timeSplit[1]);
         }
 
         function calculateTLH() {
@@ -181,11 +222,10 @@
             // Calculate TLH percentage
             var tlhPercentage = ((totalLaborHours / totalTime)).toFixed(2);
 
-            tlhResultElement.innerHTML = "Percentage of Total Labor Hours: " + tlhPercentage + "%";
+            tlhResultElement.innerHTML = "TLH: " + tlhPercentage;
         }
-
-
     </script>
+
 </body>
 
 </html>
